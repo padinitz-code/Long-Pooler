@@ -287,6 +287,57 @@ MIT License - see LICENSE file for details
 
 This is a rewrite of the original [Long-Polling](https://github.com/edenreich/Long-Polling) library by edenreich, converted to work with Node.js and JSX.
 
-## Support
+## 📚 Documentation
 
-For issues and questions, please check the original repository or create an issue in this fork.
+- **[Migration Guide](./MIGRATION.md)** - Complete migration from the original PHP library
+- **[Contributing Guidelines](./CONTRIBUTING.md)** - How to contribute to the project
+- **[Code of Conduct](./CODE_OF_CONDUCT.md)** - Community standards and behavior
+- **[Security Policy](./SECURITY.md)** - Security reporting and best practices
+- **[Development Roadmap](./ROADMAP.md)** - Future plans and milestones
+- **[Changelog](./CHANGELOG.md)** - Version history and release notes
+
+## 🛡️ Security
+
+We take security seriously. If you discover a security vulnerability, please:
+
+1. **DO NOT** create a public GitHub issue
+2. **DO** report it privately via [security@padinitz-code.com](mailto:security@padinitz-code.com)
+3. **DO** use GitHub's private security advisory feature
+
+See our [Security Policy](./SECURITY.md) for more details.
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](./CONTRIBUTING.md) for:
+
+- How to set up your development environment
+- Code style and standards
+- Testing requirements
+- Pull request process
+- Community guidelines
+
+## 📊 Project Status
+
+- **Current Version**: 1.0.0
+- **Status**: ✅ Production Ready
+- **Node.js**: 16+ required
+- **React**: 18+ recommended
+- **License**: MIT
+
+## 🔗 Links
+
+- **Repository**: [https://github.com/padinitz-code/Long-Pooler](https://github.com/padinitz-code/Long-Pooler)
+- **Original Library**: [https://github.com/edenreich/Long-Polling](https://github.com/edenreich/Long-Polling)
+- **Issues**: [GitHub Issues](https://github.com/padinitz-code/Long-Pooler/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/padinitz-code/Long-Pooler/discussions)
+
+## 📞 Support
+
+- **Documentation**: Check the docs above
+- **Issues**: [GitHub Issues](https://github.com/padinitz-code/Long-Pooler/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/padinitz-code/Long-Pooler/discussions)
+- **Security**: [security@padinitz-code.com](mailto:security@padinitz-code.com)
+
+---
+
+**Note**: This is a complete rewrite of the original [Long-Polling](https://github.com/edenreich/Long-Polling) library by edenreich, modernized for Node.js and React applications.
