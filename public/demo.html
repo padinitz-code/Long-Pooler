@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Long-Polling JSX Demo - Vanilla JavaScript</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+        
+        .demo-section h2 {
+            color: #2d3748;
+            margin-top: 0;
+            border-bottom: 2px solid #cbd5e0;
+            padding-bottom: 10px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .connected {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #9ae6b4;
+        }
+        
+        .connecting {
+            background: #fef5e7;
+            color: #744210;
+            border: 2px solid #f6ad55;
+        }
+        
+        .error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #fc8181;
+        }
+        
+        .data-display {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .recipe-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #4299e1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .recipe-name {
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 1.1em;
+        }
+        
+        .recipe-price {
+            color: #38a169;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4299e1;
+        }
+        
+        .stat-label {
+            color: #718096;
+            margin-top: 5px;
+        }
+        
+        .timestamp {
+            font-size: 0.9em;
+            color: #718096;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Long-Polling JSX Demo</h1>
+        <p style="text-align: center; color: #718096; font-size: 1.1em;">
+            Real-time updates using long-polling with vanilla JavaScript
+        </p>
+        
+        <div class="demo-section">
+            <h2>🍕 Recipe Updates</h2>
+            <div class="controls">
+                <button id="startRecipes">Start Polling</button>
+                <button id="stopRecipes" disabled>Stop Polling</button>
+            </div>
+            <div id="recipeStatus" class="status connecting">Connecting...</div>
+            <div id="recipeTimestamp" class="timestamp">Last update: Never</div>
+            <div id="recipes" class="data-display">
+                <p>Click "Start Polling" to begin receiving real-time recipe updates...</p>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>📊 Live Data Monitors</h2>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="tempValue">--</div>
+                    <div class="stat-label">Temperature</div>
+                    <div id="tempStatus" class="status connecting">Connecting</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="humidityValue">--</div>
+                    <div class="stat-label">Humidity</div>
+                    <div id="humidityStatus" class="status connecting">Connecting</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pressureValue">--</div>
+                    <div class="stat-label">Pressure</div>
+                    <div id="pressureStatus" class="status connecting">Connecting</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🔧 Connection Status</h2>
+            <div id="connectionStats" class="data-display">
+                <p>Connection statistics will appear here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import LongPolling from './js/LongPolling.js';
+        
+        // Recipe polling
+        let recipePolling = null;
+        let dataPolling = {};
+        
+        // DOM elements
+        const startRecipesBtn = document.getElementById('startRecipes');
+        const stopRecipesBtn = document.getElementById('stopRecipes');
+        const recipeStatus = document.getElementById('recipeStatus');
+        const recipeTimestamp = document.getElementById('recipeTimestamp');
+        const recipesDiv = document.getElementById('recipes');
+        const connectionStats = document.getElementById('connectionStats');
+        
+        // Stats tracking
+        let stats = {
+            recipeUpdates: 0,
+            dataUpdates: 0,
+            errors: 0,
+            startTime: null
+        };
+        
+        function updateStats() {
+            const uptime = stats.startTime ? Math.floor((Date.now() - stats.startTime) / 1000) : 0;
+            connectionStats.innerHTML = `
+                <h3>Connection Statistics</h3>
+                <p><strong>Uptime:</strong> ${uptime}s</p>
+                <p><strong>Recipe Updates:</strong> ${stats.recipeUpdates}</p>
+                <p><strong>Data Updates:</strong> ${stats.dataUpdates}</p>
+                <p><strong>Errors:</strong> ${stats.errors}</p>
+                <p><strong>Active Connections:</strong> ${Object.keys(dataPolling).length + (recipePolling ? 1 : 0)}</p>
+            `;
+        }
+        
+        function startRecipePolling() {
+            if (recipePolling) return;
+            
+            stats.startTime = stats.startTime || Date.now();
+            recipePolling = new LongPolling('/api/recipes', { interval: 1000 });
+            
+            recipePolling.subscribe(function(recipes) {
+                stats.recipeUpdates++;
+                recipeTimestamp.textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+                
+                if (recipes && recipes.length > 0) {
+                    let output = '<h3>Current Recipes:</h3>';
+                    recipes.forEach(recipe => {
+                        output += `
+                            <div class="recipe-item">
+                                <div class="recipe-name">${recipe.name}</div>
+                                <div class="recipe-price">$${recipe.price}</div>
+                            </div>
+                        `;
+                    });
+                    recipesDiv.innerHTML = output;
+                } else {
+                    recipesDiv.innerHTML = '<p>No recipes available</p>';
+                }
+                
+                updateStats();
+            });
+            
+            recipePolling.start();
+            recipeStatus.textContent = 'Connected';
+            recipeStatus.className = 'status connected';
+            startRecipesBtn.disabled = true;
+            stopRecipesBtn.disabled = false;
+        }
+        
+        function stopRecipePolling() {
+            if (recipePolling) {
+                recipePolling.stop();
+                recipePolling = null;
+                recipeStatus.textContent = 'Disconnected';
+                recipeStatus.className = 'status connecting';
+                startRecipesBtn.disabled = false;
+                stopRecipesBtn.disabled = true;
+                updateStats();
+            }
+        }
+        
+        function startDataPolling(key) {
+            if (dataPolling[key]) return;
+            
+            const statusElement = document.getElementById(`${key}Status`);
+            const valueElement = document.getElementById(`${key}Value`);
+            
+            dataPolling[key] = new LongPolling(`/api/data/${key}`, { interval: 2000 });
+            
+            dataPolling[key].subscribe(function(data) {
+                if (data) {
+                    stats.dataUpdates++;
+                    valueElement.textContent = data.value.toFixed(2);
+                    statusElement.textContent = 'Connected';
+                    statusElement.className = 'status connected';
+                    updateStats();
+                }
+            });
+            
+            dataPolling[key].start();
+        }
+        
+        function stopDataPolling(key) {
+            if (dataPolling[key]) {
+                dataPolling[key].stop();
+                delete dataPolling[key];
+                const statusElement = document.getElementById(`${key}Status`);
+                const valueElement = document.getElementById(`${key}Value`);
+                statusElement.textContent = 'Disconnected';
+                statusElement.className = 'status connecting';
+                valueElement.textContent = '--';
+                updateStats();
+            }
+        }
+        
+        // Event listeners
+        startRecipesBtn.addEventListener('click', startRecipePolling);
+        stopRecipesBtn.addEventListener('click', stopRecipePolling);
+        
+        // Start data polling for all monitors
+        ['temp', 'humidity', 'pressure'].forEach(key => {
+            startDataPolling(key);
+        });
+        
+        // Update stats every second
+        setInterval(updateStats, 1000);
+        
+        // Initial stats update
+        updateStats();
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (recipePolling) recipePolling.stop();
+            Object.values(dataPolling).forEach(polling => polling.stop());
+        });
+    </script>
+</body>
+</html>
